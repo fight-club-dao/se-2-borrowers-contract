@@ -14,7 +14,7 @@ import "hardhat/console.sol";
 contract YourContract {
 
     // State Variables
-    address public immutable owner;
+    address[] public owners;
     string public greeting = "Building Unstoppable Apps!!!";
     bool public premium = false;
     uint256 public totalCounter = 0;
@@ -25,15 +25,19 @@ contract YourContract {
 
     // Constructor: Called once on contract deployment
     // Check packages/hardhat/deploy/00_deploy_your_contract.ts
-    constructor(address _owner) {
-        owner = _owner;
+    constructor(address[] memory _owners) {
+        owners = _owners;
+    }
+
+    function getWhitelistedBorrowers() public view returns (address[] memory) {
+        return owners;
     }
 
     // Modifier: used to define a set of rules that must be met before or after a function is executed
     // Check the withdraw() function
     modifier isOwner() {
         // msg.sender: predefined variable that represents address of the account that called the current function
-        require(msg.sender == owner, "Not the Owner");
+        require(msg.sender == owners[0], "Not the Owner");
         _;
     }
 
@@ -67,7 +71,7 @@ contract YourContract {
      * The function can only be called by the owner of the contract as defined by the isOwner modifier
      */
     function withdraw() isOwner public {
-        (bool success,) = owner.call{value: address(this).balance}("");
+        (bool success,) = owners[0].call{value: address(this).balance}("");
         require(success, "Failed to send Ether");
     }
 
